@@ -1,0 +1,12 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${url:localhost:3306/paste}
+    username: ${username:root}
+    password: ${password:root}
+
+logging:
+  file:
+    name: logs/paste.log
+  level:
+    root: INFO
