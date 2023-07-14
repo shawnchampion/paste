@@ -54,7 +54,6 @@ public class FileServiceImpl implements FileService {
         fileRecord.setCreateTime(System.currentTimeMillis());
         fileRecord.setExpireTime(fileRecord.getCreateTime() + (long) PasteConfig.getInstance().getExpireMinutes() * 60 * 1000);
         fileRepository.save(fileRecord);
-        log.info("Upload -> {}", fileRecord);
 
         return fileRecord;
     }

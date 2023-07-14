@@ -21,7 +21,10 @@ public class FileController {
     @PostMapping("/upload")
     public Response<FileRecord> upload(@RequestParam("file") MultipartFile file) {
         try {
-            return new Response<>(fileService.doUpload(file));
+            FileRecord fileRecord = fileService.doUpload(file);
+            log.info("Upload -> {}", fileRecord);
+
+            return new Response<>(fileRecord);
         } catch (PasteException pe) {
             log.error(pe);
             return new Response<>(pe.getErrorCode(), pe.getErrorMessage());
@@ -56,8 +59,12 @@ public class FileController {
         }
         try {
             fileService.doDownload(fileRecord.getFilename(), fileRecord.getPath(), response);
+            log.info("Download -> " + fileRecord);
             return null;
-        } catch (PasteException e) {
+        } catch (PasteException pe) {
+            log.error(pe);
+            return new Response<>(pe.getErrorCode(), pe.getErrorMessage());
+        } catch (Exception e) {
             log.error(e);
             return new Response<>(ResponseStatus.INTERNAL_SERVER_ERROR, "知识错乱！");
         }
