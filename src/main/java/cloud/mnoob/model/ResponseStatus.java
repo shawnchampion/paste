@@ -15,6 +15,7 @@ public enum ResponseStatus {
 
     FILE_ERROR_SPACE_OUT_LIMIT(1001, "知识已经爆满啦~", "服务器可用空间不足"),
     FILE_ERROR_FILE_NOT_EXIST(1002, "知识不见了~", "下载文件不存在"),
+    FILE_ERROR_FOLDER_CREATE_FAIL(1003, "知识无处落脚~", "上传文件夹创建失败"),
     ;
 
     public final int code;

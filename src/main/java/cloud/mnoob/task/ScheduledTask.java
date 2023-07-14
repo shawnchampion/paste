@@ -36,13 +36,15 @@ public class ScheduledTask {
         List<FileRecord> fileRecordList = fileRepository.findByExpireTimeLessThan(System.currentTimeMillis());
         for (FileRecord fileRecord : fileRecordList) {
             File file = new File(fileRecord.getPath());
-            if (!file.exists()) {
+            if (file.exists()) {
+                if (file.delete()) {
+                    log.info("Clean -> delete file succeed: {}", fileRecord);
+                } else {
+                    log.error("Clean -> delete file failed: {}", fileRecord);
+                    continue;
+                }
+            } else {
                 log.error("Clean -> file not exist: {}", fileRecord);
-                continue;
-            }
-            if (!file.delete()) {
-                log.error("Clean -> delete file failed: {}", fileRecord);
-                continue;
             }
             fileRepository.delete(fileRecord);
         }

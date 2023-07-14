@@ -28,7 +28,10 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public FileRecord doUpload(MultipartFile file) throws Exception {
-        FileStore store = Files.getFileStore(FileSystems.getDefault().getPath(PasteConfig.getInstance().getUploadPath()));
+        // 获取上传文件夹路径，不存在则创建
+        String uploadPath = getUploadPath();
+        // 获取服务器磁盘使用情况
+        FileStore store = Files.getFileStore(FileSystems.getDefault().getPath(uploadPath));
         String filename = file.getOriginalFilename();
         log.info("开始上传文件: {}, {} MB", filename, file.getSize() / 1000 / 1000);
         long usable = store.getUsableSpace();
@@ -38,32 +41,20 @@ public class FileServiceImpl implements FileService {
             log.warn("可用空间不足20%");
             throw new PasteException(ResponseStatus.FILE_ERROR_SPACE_OUT_LIMIT);
         }
-
-        String code;
-        int count = 0;
-        do {
-            // 尝试次数过多返回冲突
-            if (count++ > PasteConfig.getInstance().getMaxRetries()) {
-                log.error("Too much retries for file:{}", filename);
-                throw new PasteException(ResponseStatus.CONFLICT, "知识没有被接纳～");
-            }
-            // 生成提取码
-            code = String.valueOf(PasteCodeUtil.getRandomCode());
-            log.debug(code);
-        } while (fileRepository.findById(code).isPresent());
-
-        String storePath = PasteConfig.getInstance().getUploadPath() + "/" + UUID.randomUUID();
+        // 上传并更名文件
+        String storePath = uploadPath + "/" + UUID.randomUUID();
         File storeFile = new File(storePath);
         file.transferTo(storeFile);
 
         FileRecord fileRecord = new FileRecord();
-        fileRecord.setCode(code);
+        fileRecord.setCode(getRandomCode(filename));
         fileRecord.setFilename(filename);
         fileRecord.setSize(file.getSize());
         fileRecord.setPath(storePath);
         fileRecord.setCreateTime(System.currentTimeMillis());
         fileRecord.setExpireTime(fileRecord.getCreateTime() + (long) PasteConfig.getInstance().getExpireMinutes() * 60 * 1000);
         fileRepository.save(fileRecord);
+        log.info("Upload -> {}", fileRecord);
 
         return fileRecord;
     }
@@ -96,5 +87,38 @@ public class FileServiceImpl implements FileService {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    // 从配置文件获取上传文件夹路径，不存在则创建
+    private String getUploadPath() throws PasteException {
+        String uploadPath = PasteConfig.getInstance().getUploadPath();
+        File folder = new File(uploadPath);
+        if (!folder.exists()) {
+            if (folder.mkdirs()) {
+                log.info("上传文件夹创建成功: {}", uploadPath);
+            } else {
+                log.error("上传文件夹创建失败: {}", uploadPath);
+                throw new PasteException(ResponseStatus.FILE_ERROR_FOLDER_CREATE_FAIL);
+            }
+        }
+        return uploadPath;
+    }
+
+    // 获取到一个可用的随机提取码
+    private String getRandomCode(String filename) throws PasteException {
+        String code;
+        int count = 0;
+        do {
+            // 尝试次数过多返回冲突
+            if (count++ > PasteConfig.getInstance().getMaxRetries()) {
+                log.error("Too much retries for file:{}", filename);
+                throw new PasteException(ResponseStatus.CONFLICT, "知识没有被接纳～");
+            }
+            // 生成提取码
+            code = String.valueOf(PasteCodeUtil.getRandomCode());
+            log.debug(code);
+        } while (fileRepository.findById(code).isPresent());
+
+        return code;
     }
 }
