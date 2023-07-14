@@ -11,7 +11,11 @@ public enum ResponseStatus {
     NOT_ACCEPTABLE(406, "Not Acceptable", "请求的格式不被服务器支持"),
     CONFLICT(409, "Conflict", "由于冲突，请求无法完成，通常由于更新资源所需的状态无效"),
     UNSUPPORTED_MEDIA_TYPE(415, "Unsupported Media Type", "响应的内容格式是不受支持的"),
-    INTERNAL_SERVER_ERROR(500, "Internal Server Error", "服务器内部错误");
+    INTERNAL_SERVER_ERROR(500, "Internal Server Error", "服务器内部错误"),
+
+    FILE_ERROR_SPACE_OUT_LIMIT(1001, "知识已经爆满啦~", "服务器可用空间不足"),
+    FILE_ERROR_FILE_NOT_EXIST(1002, "知识不见了~", "下载文件不存在"),
+    ;
 
     public final int code;
     public final String message;

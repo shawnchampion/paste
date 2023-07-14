@@ -8,15 +8,15 @@ public class Response<T> {
     private String message;
     private T data;
 
+    public Response() {
+        this.code = ResponseStatus.OK.code;
+        this.message = ResponseStatus.OK.message;
+    }
+
     public Response(T data) {
         this.code = ResponseStatus.OK.code;
         this.message = ResponseStatus.OK.message;
         this.data = data;
-    }
-
-    public Response(ResponseStatus status) {
-        this.code = status.code;
-        this.message = status.message;
     }
 
     public Response(ResponseStatus status, String message) {

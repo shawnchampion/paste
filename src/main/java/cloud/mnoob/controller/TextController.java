@@ -1,10 +1,10 @@
 package cloud.mnoob.controller;
 
 import cloud.mnoob.model.PasteException;
-import cloud.mnoob.model.PasteRecord;
+import cloud.mnoob.model.record.TextRecord;
 import cloud.mnoob.model.Response;
 import cloud.mnoob.model.ResponseStatus;
-import cloud.mnoob.service.PasteService;
+import cloud.mnoob.service.TextService;
 import jakarta.annotation.Resource;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
@@ -12,22 +12,22 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @Log4j2
 @CrossOrigin
-public class PasteController {
+public class TextController {
     @Resource
-    private PasteService pasteService;
+    private TextService textService;
 
     @GetMapping("/copy")
-    public Response<PasteRecord> copy(@RequestParam String code) {
+    public Response<TextRecord> copy(@RequestParam String code) {
         log.debug(code);
         try {
             // 根据提取码查询粘贴记录
-            PasteRecord pasteRecord = pasteService.doCopy(code);
-            if (pasteRecord == null) {
+            TextRecord textRecord = textService.doCopy(code);
+            if (textRecord == null) {
                 log.error("No record with code:{}", code);
                 return new Response<>(ResponseStatus.NOT_FOUND, "这是一块知识的盲区~");
             }
-            log.info("Copy -> " + pasteRecord);
-            return new Response<>(pasteRecord);
+            log.info("Copy -> " + textRecord);
+            return new Response<>(textRecord);
         } catch (Exception e) {
             log.error(e);
             return new Response<>(ResponseStatus.INTERNAL_SERVER_ERROR, "知识错乱！");
@@ -35,10 +35,10 @@ public class PasteController {
     }
 
     @PostMapping("/paste")
-    public Response<PasteRecord> paste(@RequestBody PasteRecord record) {
+    public Response<TextRecord> paste(@RequestBody TextRecord record) {
         log.debug(record.getText());
         try {
-            pasteService.doPaste(record);
+            textService.doPaste(record);
             log.info("Paste -> " + record);
             return new Response<>(record);
         } catch (PasteException pe) {

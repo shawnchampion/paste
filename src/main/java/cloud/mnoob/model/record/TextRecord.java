@@ -1,12 +1,12 @@
-package cloud.mnoob.model;
+package cloud.mnoob.model.record;
 
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "record")
-public class PasteRecord {
+@Table(name = "text_record")
+public class TextRecord {
     @Id
     private String code;
     private String text;
