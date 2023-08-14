@@ -11,14 +11,14 @@ import org.springframework.context.annotation.Configuration;
 public class PasteConfig {
     private static PasteConfig instance;
 
+    // 数字提取码位数
+    private int codeLength = 6;
     // 粘贴内容过期时间（单位：分钟）
     private int expireMinutes = 15;
     // 生成提取码允许最大冲突次数
     private int maxRetries = 10;
-    // 数字提取码位数
-    private int codeLength = 6;
     // 文件上传位置
-    private String uploadPath = "/root/paste-files";
+    private String uploadPath = "/root/paste/files";
 
     @PostConstruct
     private void initialize() {
